@@ -257,7 +257,7 @@ std::string Updater::Request(const char* url)
 
 bool Updater::FetchReleaseInfo()
 {
-	std::string data = Request("https://api.github.com/repos/YaLTeR/SourcePauseTool/releases/latest");
+	std::string data = Request("https://api.github.com/repos/OutOfBoundsOffice/SourcePauseTool/releases/latest");
 	if (data.empty())
 		return false;
 
