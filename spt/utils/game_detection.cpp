@@ -158,7 +158,12 @@ namespace utils
 
 		if (!HasBuildNumber)
 		{
-			BuildNumber = BuildResult.get();
+			const char* envBuildNumber = std::getenv("SPT_USE_BUILD_NUMBER");
+			if (envBuildNumber)
+				BuildNumber = atoi(envBuildNumber);
+			else
+				BuildNumber = BuildResult.get();
+
 			HasBuildNumber = true;
 		}
 
