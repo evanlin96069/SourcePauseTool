@@ -1,5 +1,5 @@
 # SourcePauseTool
-[![Actions Status](https://github.com/YaLTeR/SourcePauseTool/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/YaLTeR/SourcePauseTool/actions?query=branch%3Amaster)
+[![Actions Status](https://github.com/OutOfBoundsOffice/SourcePauseTool/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/OutOfBoundsOffice/SourcePauseTool/actions?query=branch%3Amaster)
 
 A plugin for all your pausing needs.
 
@@ -39,7 +39,7 @@ A plugin for all your pausing needs.
     * MSVC v143 - VS 2022 C++ x64/x86 build tools
 2. Run the following in cmd:
     ```
-    git clone --recurse-submodules https://github.com/YaLTeR/SourcePauseTool.git
+    git clone --recurse-submodules https://github.com/OutOfBoundsOffice/SourcePauseTool.git
     SourcePauseTool\spt.sln
     ```
 3. If Windows asks which program to open `spt.sln` with, choose Visual Studio.
