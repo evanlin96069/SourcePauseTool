@@ -466,6 +466,9 @@
     <ClCompile Include="spt\features\visualizations\fcps\fcps_event_queue.cpp">
       <Filter>spt\features\visualizations\fcps</Filter>
     </ClCompile>
+    <ClCompile Include="spt\features\entitylist.cpp">
+      <Filter>spt\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\public\tier0\basetypes.h">
