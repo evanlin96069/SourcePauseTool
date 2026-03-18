@@ -288,6 +288,11 @@ private:
 			ImGui::TextDisabled("%s", "Copyright (c) 2018-2025 Stephane Cuillerdier (aka Aiekick).");
 
 			ImGui::Separator();
+			ImGui::TextUnformatted("ImGuiColorTextEdit");
+			ABOUT_WINDOW_GITHUB("imgui_text_editor", "https://github.com/BalazsJako/ImGuiColorTextEdit");
+			ImGui::TextDisabled("%s", "Copyright (c) 2017 BalazsJako");
+
+			ImGui::Separator();
 			ImGui::TextUnformatted("MinHook");
 			ABOUT_WINDOW_GITHUB("minhook", "https://github.com/TsudaKageyu/minhook");
 			ImGui::TextDisabled("%s", "Copyright (C) 2009-2017 Tsuda Kageyu.");

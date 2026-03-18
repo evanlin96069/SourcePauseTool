@@ -6,6 +6,15 @@ To update Dear ImGui files go to https://github.com/ocornut/imgui/tree/docking.
 
 4) Download source from https://github.com/aiekick/ImGuiFileDialog/releases and put in imgui/ImGuiFileDialog.
 
+5) Download source from https://github.com/BalazsJako/ImGuiColorTextEdit and put it in imgui/ImGuiColorTextEdit.
+
 If updating ImGui, make sure to copy the settings from imconfig.h & ImGuiFileDialogConfig.h.
+If updating ImGuiColorTextEdit, remove `#include "imgui.h"` and add
+```
+#include "thirdparty/imgui/imgui.h"
+
+#undef min
+#undef max
+```
 
 - uncrafted
