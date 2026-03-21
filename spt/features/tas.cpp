@@ -398,15 +398,8 @@ void TASFeature::LoadFeature()
 	}
 }
 
-bool TASFeature::WriteTemplateScript(const char* filePath, const char* saveName, std::string& errMsg)
+std::string TASFeature::GetTemplateScript(const char* filePath, const char* saveName)
 {
-	std::error_code ec;
-	if (std::filesystem::exists(filePath, ec))
-	{
-		errMsg = "file already exists";
-		return false;
-	}
-
 	auto wrangleName = [](const ConVar& cv) { return WrangleLegacyCommandName(cv.GetName(), true, nullptr); };
 
 	std::vector<std::pair<bool, std::string>> settingsList = {
@@ -451,7 +444,22 @@ frames
 	std::string demoName = "tas_" + std::filesystem::path(filePath).filename().stem().string();
 	std::replace(demoName.begin(), demoName.end(), ' ', '_');
 
-	std::string script = std::format(scriptTemplate, saveName, demoName, settingsStream.str(), SPT_VERSION);
+	return std::format(scriptTemplate, saveName, demoName, settingsStream.str(), SPT_VERSION);
+}
+
+
+bool TASFeature::WriteTemplateScript(const char* filePath,
+                                     const char* saveName,
+                                     std::string& errMsg)
+{
+	std::error_code ec;
+	if (std::filesystem::exists(filePath, ec))
+	{
+		errMsg = "file already exists";
+		return false;
+	}
+
+	std::string script = GetTemplateScript(filePath, saveName);
 
 	ser::FileWriter fWr(filePath, std::ios::out);
 	fWr.WriteSpan(std::span{script.c_str(), script.size()});

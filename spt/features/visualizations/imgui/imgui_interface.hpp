@@ -231,6 +231,9 @@ namespace SptImGuiGroup
 	inline Tab Hud_JHud{"Jump HUD", &Hud};
 	inline Tab Hud_StrafeHud{"Strafe HUD", &Hud};
 
+	// TAS editor
+	inline Tab TASEditor{ICON_CI_EDIT " TAS Editor", &Root};
+
 	// imgui settings
 	inline Tab Settings{ICON_CI_GEAR " Settings", &Root};
 

@@ -51,9 +51,9 @@ set(SPT_SOURCES
 	spt/sptlib-wrapper.cpp
 	spt/spt-serverplugin.cpp
 	spt/spt-version.cpp
-	
+
 	spt/aim/aimstuff.cpp
-	
+
 	spt/features/afterframes.cpp
 	spt/features/afterticks.cpp
 	spt/features/aim.cpp
@@ -123,6 +123,7 @@ set(SPT_SOURCES
 	spt/features/visualizations/oob_ents.cpp
 	spt/features/visualizations/portal_placement.cpp
 	spt/features/visualizations/sg-collide-vis.cpp
+	spt/features/visualizations/tas_editor.cpp
 	spt/features/visualizations/vag_trace.cpp
 	spt/features/visualizations/fcps/fcps_animate.cpp
 	spt/features/visualizations/fcps/fcps_event_queue.cpp
@@ -146,9 +147,9 @@ set(SPT_SOURCES
 	spt/features/visualizations/renderer/internal/mesh_construction.cpp
 	spt/features/visualizations/renderer/internal/mesh_renderer.cpp
 	spt/features/visualizations/renderer/internal/static_mesh.cpp
-	
+
 	spt/ipc/ipc.cpp
-	
+
 	spt/scripts/condition.cpp
 	spt/scripts/framebulk_handler.cpp
 	spt/scripts/parsed_script.cpp
@@ -157,9 +158,9 @@ set(SPT_SOURCES
 	spt/scripts/tester.cpp
 	spt/scripts/tracker.cpp
 	spt/scripts/variable_container.cpp
-	
+
 	spt/strafe/strafestuff.cpp
-	
+
 	spt/utils/convar.cpp
 	spt/utils/datamap_wrapper.cpp
 	spt/utils/ent_list_client.cpp
@@ -176,7 +177,7 @@ set(SPT_SOURCES
 	spt/utils/string_utils.cpp
 
 	spt/vgui/vgui_utils.cpp
-	
+
 	thirdparty/imgui/imgui.cpp
 	thirdparty/imgui/imgui_demo.cpp
 	thirdparty/imgui/imgui_draw.cpp
