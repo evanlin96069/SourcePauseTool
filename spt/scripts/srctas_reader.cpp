@@ -2,6 +2,8 @@
 
 #include "srctas_reader.hpp"
 
+#include <filesystem>
+
 #include "..\spt-serverplugin.hpp"
 
 #include "..\sptlib-wrapper.hpp"
@@ -90,8 +92,15 @@ namespace scripts
 			DevMsg("Attempting to parse a version 1 TAS script...\n");
 			Reset();
 
-			std::string gameDir = GetGameDir();
-			scriptStream.open(gameDir + "\\" + fileName + SCRIPT_EXT);
+			std::filesystem::path scriptPath(fileName);
+
+			if (!scriptPath.has_extension())
+				scriptPath += SCRIPT_EXT;
+
+			if (scriptPath.is_relative())
+				scriptPath = std::filesystem::path(GetGameDir()) / scriptPath;
+
+			scriptStream.open(scriptPath);
 
 			if (!scriptStream.is_open())
 				throw std::exception("File does not exist");
