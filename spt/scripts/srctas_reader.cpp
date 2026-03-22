@@ -2,6 +2,8 @@
 
 #include "srctas_reader.hpp"
 
+#include <algorithm>
+#include <climits>
 #include <filesystem>
 
 #include "..\spt-serverplugin.hpp"
@@ -144,7 +146,18 @@ namespace scripts
 	void SourceTASReader::OnAfterFrames()
 	{
 		if (currentTick <= currentScript.GetScriptLength())
+		{
 			++currentTick;
+
+			auto it = std::upper_bound(tickLineMap.begin(),
+			                           tickLineMap.end(),
+			                           std::make_pair(static_cast<int>(currentTick - 1), INT_MAX));
+			if (it != tickLineMap.begin())
+			{
+				--it;
+				currentExecutingLine = it->second;
+			}
+		}
 
 		if (conditions.empty() || iterationFinished)
 			return;
@@ -187,6 +200,11 @@ namespace scripts
 	bool SourceTASReader::IsExecutingScript()
 	{
 		return currentTick <= currentScript.GetScriptLength();
+	}
+
+	int SourceTASReader::GetCurrentExecutingLine()
+	{
+		return currentExecutingLine;
 	}
 
 	void SourceTASReader::Execute()
@@ -340,10 +358,12 @@ namespace scripts
 		lineStream.clear();
 		line.clear();
 		currentLine = 0;
+		currentExecutingLine = 0;
 		searchType = SearchType::None;
 		playbackSpeed = 1.0f;
 		demoDelay = 0;
 		currentScript.Reset();
+		tickLineMap.clear();
 	}
 
 	void SourceTASReader::ParseProps()
@@ -437,6 +457,11 @@ namespace scripts
 		{
 			FrameBulkInfo info(lineStream);
 			auto output = HandleFrameBulk(info);
+
+			if (output.ticks > 0)
+			{
+				tickLineMap.emplace_back(currentScript.GetScriptLength(), currentLine);
+			}
 
 			currentScript.AddFrameBulk(output);
 		}

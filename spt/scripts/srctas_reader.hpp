@@ -25,6 +25,7 @@ namespace scripts
 		int GetCurrentTick();
 		int GetCurrentScriptLength();
 		bool IsExecutingScript();
+		int GetCurrentExecutingLine();
 
 	private:
 		bool iterationFinished;
@@ -35,6 +36,7 @@ namespace scripts
 		std::string line;
 		int currentLine;
 		long long int currentTick;
+		int currentExecutingLine;
 		SearchType searchType;
 		float tickTime;
 		float playbackSpeed;
@@ -44,6 +46,7 @@ namespace scripts
 		ParsedScript currentScript;
 		std::map<std::string, void (SourceTASReader::*)(const std::string&)> propertyHandlers;
 		std::vector<std::unique_ptr<Condition>> conditions;
+		std::vector<std::pair<int, int>> tickLineMap; // (startTick, lineNumber)
 
 		void CommonExecuteScript(bool search);
 		void Reset();
