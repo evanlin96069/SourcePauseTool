@@ -76,6 +76,8 @@ private:
 
 	// Playback
 	int playbackTicks = 0;
+	bool autoScrollToLine = true;
+	int lastExecutingLine = 0;
 
 	std::string GetDisplayFileName()
 	{
@@ -312,6 +314,38 @@ private:
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_CI_PLAY " Play"))
 				PlayScript();
+
+			ImGui::SameLine();
+			bool isExecuting = scripts::g_TASReader.IsExecutingScript();
+			if (isExecuting)
+			{
+				int curTick = scripts::g_TASReader.GetCurrentTick();
+				int totalTicks = scripts::g_TASReader.GetCurrentScriptLength();
+				ImGui::Text("Tick %d / %d", curTick, totalTicks);
+
+				int execLine = scripts::g_TASReader.GetCurrentExecutingLine();
+				TextEditor::Breakpoints bps;
+				if (execLine > 0)
+					bps.insert(execLine);
+				editor.SetBreakpoints(bps);
+
+				if (autoScrollToLine && execLine > 0 && execLine != lastExecutingLine)
+				{
+					editor.SetCursorPosition(TextEditor::Coordinates(execLine - 1, 0));
+					lastExecutingLine = execLine;
+				}
+			}
+			else
+			{
+				ImGui::TextDisabled("Not playing");
+				editor.SetBreakpoints({});
+				lastExecutingLine = 0;
+			}
+
+			ImGui::SameLine();
+			ImGui::Checkbox("Auto-scroll", &autoScrollToLine);
+			ImGui::SameLine();
+			SptImGui::HelpMarker("Automatically scrolls the editor to the currently executing line.");
 		}
 
 		// Error tooltip
