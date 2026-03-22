@@ -8,6 +8,7 @@
 #include "spt/feature.hpp"
 #include "spt/utils/file.hpp"
 #include "spt/features/tas.hpp"
+#include "spt/scripts/srctas_reader.hpp"
 #include "imgui/imgui_interface.hpp"
 #include "imgui/ImGuiColorTextEdit/TextEditor.h"
 #include "imgui/ImGuiFileDialog/ImGuiFileDialog.h"
@@ -70,7 +71,11 @@ private:
 	std::function<void()> pendingAction;   // Action deferred to the next frame
 	bool pendingUnsavedPopup = false;      // True while the unsaved-changes popup is waiting for user input
 	std::filesystem::path pendingSavePath; // Used for overwrite confirmation
+	std::function<void()> onSaveCallback;  // Callback to run after a successful save from CheckModifiedAndSave
 	char pendingSaveName[MAX_PATH] = "";   // Used for the "New Script" popup
+
+	// Playback
+	int playbackTicks = 0;
 
 	std::string GetDisplayFileName()
 	{
@@ -200,8 +205,9 @@ private:
 		return !ec && currentTime != state.openedFileTime;
 	}
 
-	void CheckModifiedAndSave(const std::filesystem::path& filePath)
+	void CheckModifiedAndSave(const std::filesystem::path& filePath, std::function<void()> callback = nullptr)
 	{
+		onSaveCallback = std::move(callback);
 		if (IsFileModifiedOnDisk(filePath))
 		{
 			pendingSavePath = filePath;
@@ -213,6 +219,13 @@ private:
 			{
 				errorStr = "Failed to save file: " + filePath.string();
 				errorTooltip.StartShowing(errorStr.c_str());
+				onSaveCallback = nullptr;
+			}
+			else if (onSaveCallback)
+			{
+				auto cb = std::move(onSaveCallback);
+				onSaveCallback = nullptr;
+				cb();
 			}
 		}
 	}
@@ -228,6 +241,26 @@ private:
 		}
 		action();
 		return true;
+	}
+
+	void PlayScript()
+	{
+		if (!state.hasFileOpen || state.currentFilePath.empty())
+			return;
+
+		auto doPlay = [this]()
+		{
+			std::string path = state.currentFilePath.string();
+			if (playbackTicks > 0)
+				scripts::g_TASReader.ExecuteScriptWithResume(path, playbackTicks);
+			else
+				scripts::g_TASReader.ExecuteScript(path);
+		};
+
+		if (state.unsavedChanges)
+			CheckModifiedAndSave(state.currentFilePath, doPlay);
+		else
+			doPlay();
 	}
 
 	void ImGuiCallback()
@@ -267,6 +300,18 @@ private:
 				config.flags = ImGuiFileDialogFlags_ConfirmOverwrite;
 				igfd->OpenDialog(SAVE_DIALOG_KEY, "Save TAS Script As", ".srctas", config);
 			}
+
+			ImGui::NextColumn();
+			ImGui::SetNextItemWidth(100);
+			ImGui::InputInt("Ticks", &playbackTicks, 0, 0);
+			if (playbackTicks < 0)
+				playbackTicks = 0;
+			ImGui::SameLine();
+			SptImGui::HelpMarker(
+			    "The script is played back at maximal FPS and without rendering until this many ticks before the end of the script.");
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_CI_PLAY " Play"))
+				PlayScript();
 		}
 
 		// Error tooltip
@@ -363,6 +408,13 @@ private:
 				{
 					errorStr = "Failed to save file: " + pendingSavePath.string();
 					errorTooltip.StartShowing(errorStr.c_str());
+					onSaveCallback = nullptr;
+				}
+				else if (onSaveCallback)
+				{
+					auto cb = std::move(onSaveCallback);
+					onSaveCallback = nullptr;
+					cb();
 				}
 				pendingSavePath.clear();
 				ImGui::CloseCurrentPopup();
@@ -370,6 +422,7 @@ private:
 			ImGui::SameLine();
 			if (ImGui::Button("Cancel", ImVec2(120, 0)))
 			{
+				onSaveCallback = nullptr;
 				pendingSavePath.clear();
 				ImGui::CloseCurrentPopup();
 			}
