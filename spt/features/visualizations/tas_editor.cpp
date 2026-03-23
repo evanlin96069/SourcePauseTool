@@ -32,6 +32,9 @@ class TASEditor : public FeatureWrapper<TASEditor>
 protected:
 	virtual void LoadFeature()
 	{
+		editor.SetPalette(GetEditorPalette());
+		editor.SetLanguageDefinition(GetLanguageDefinition());
+
 		igfd = std::make_unique<ImGuiFileDialog>();
 
 		// TODO make these colors global somewhere?
@@ -39,8 +42,9 @@ protected:
 		igfd->SetFileStyle(IGFD_FileStyleByTypeDir, "", ImVec4(1.f, 1.f, 1.f, 1.f), ICON_CI_FOLDER);
 		igfd->SetFileStyle(IGFD_FileStyleByTypeFile, "", fileColor, ICON_CI_FILE);
 
-		SptImGuiGroup::TASEditor.RegisterUserCallback([this]() { this->ImGuiCallback(); });
 		LoadBackup();
+
+		SptImGuiGroup::TASEditor.RegisterUserCallback([this]() { this->ImGuiCallback(); });
 	}
 
 	virtual void UnloadFeature()
@@ -78,6 +82,101 @@ private:
 	int playbackTicks = 0;
 	bool autoScrollToLine = true;
 	int lastExecutingLine = 0;
+
+	static const TextEditor::Palette& GetEditorPalette()
+	{
+		static bool inited = false;
+		static TextEditor::Palette p = TextEditor::GetDarkPalette();
+		if (!inited)
+		{
+			// Make background slightly transparent
+			p[static_cast<int>(TextEditor::PaletteIndex::Background)] = 0x7f101010;
+			inited = true;
+		}
+		return p;
+	}
+
+	const TextEditor::LanguageDefinition& GetLanguageDefinition()
+	{
+		using PaletteIndex = TextEditor::PaletteIndex;
+
+		static bool inited = false;
+		static TextEditor::LanguageDefinition langDef;
+		if (!inited)
+		{
+			static const char* const keywords[] = {
+			    "save",
+			    "demo",
+			    "search",
+			    "playspeed",
+			    "settings",
+			    "vars",
+			    "frames",
+			    "sl",
+			    "ss",
+
+			    "var",
+			    "float",
+			    "int",
+			    "angle",
+			};
+			langDef.mKeywords.reserve(std::size(keywords));
+			for (auto& k : keywords)
+				langDef.mKeywords.insert(k);
+
+			static const char* const identifiers[] = {
+			    "tick",
+			    "tickend",
+			    "posx",
+			    "posy",
+			    "posz",
+			    "velx",
+			    "vely",
+			    "velz",
+			    "vel2d",
+			    "velabs",
+			    "alive",
+			    "changelevel",
+			    "jb",
+			};
+			langDef.mIdentifiers.reserve(std::size(identifiers));
+			for (auto& k : identifiers)
+			{
+				TextEditor::Identifier id;
+				id.mDeclaration = "Search type";
+				langDef.mIdentifiers.insert(std::make_pair(std::string(k), id));
+			}
+
+			// regex
+			static const std::pair<const char*, PaletteIndex> regexes[] = {
+			    {"\".*\"", PaletteIndex::String},
+			    {"[+-]?([a-zA-Z_][a-zA-Z0-9_]*)", PaletteIndex::Identifier},
+			    {"[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)([eE][+-]?[0-9]+)?", PaletteIndex::Number},
+			    {"[+-]?[0-9]+", PaletteIndex::Number},
+			    {"[\\[\\]\\|\\<\\;]", PaletteIndex::Punctuation},
+			};
+			langDef.mTokenRegexStrings.reserve(std::size(regexes));
+			for (auto& r : regexes)
+			{
+				std::pair<std::string, PaletteIndex> regexPair(r.first, r.second);
+				langDef.mTokenRegexStrings.push_back(regexPair);
+			}
+
+			// We don't have multi-line comments, but still need to set it or it'll treat everything as comment
+			langDef.mCommentStart = "/*";
+			langDef.mCommentEnd = "*/";
+
+			langDef.mSingleLineComment = "//";
+
+			langDef.mCaseSensitive = true;
+			langDef.mAutoIndentation = true;
+
+			langDef.mName = "SRCTAS";
+
+			inited = true;
+		}
+		return langDef;
+	}
 
 	std::string GetDisplayFileName()
 	{
