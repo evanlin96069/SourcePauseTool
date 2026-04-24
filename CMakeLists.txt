@@ -70,6 +70,7 @@ set(SPT_SOURCES
 	spt/features/demo.cpp
 	spt/features/dmomm.cpp
 	spt/features/ent_props.cpp
+	spt/features/entitylist.cpp
 	spt/features/fov.cpp
 	spt/features/generic.cpp
 	spt/features/grass.cpp
